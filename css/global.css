@@ -1,0 +1,36 @@
+body {
+	font-family:arial;
+	font-size:14px;
+}
+
+h1,h2,h3 {
+	margin:10px 0;
+}
+
+article {
+	margin:5px;
+	padding:5px;
+	border:solid 1px;
+	border-radius:5px;
+	float:left;
+	width:400px;
+}
+
+article header {
+	font-weight: bold;
+}
+
+section {
+	border-top:1px dotted;
+	padding-top:10px;
+}
+
+span.note {
+	display: block;
+	font-style:italic;
+	font-size:12px;
+}
+
+span.error {
+	color:red;
+}

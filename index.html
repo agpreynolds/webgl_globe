@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>482718</title>
+	<script type="text/javascript" src="js/gl_matrix.js"></script>
+	<script type="text/javascript" src="js/webgl-debug.js"></script>
+	<script type="text/javascript" src="js/webgl-utils.js"></script>
+	<script type="text/javascript" src="js/482718.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="css/global.css">
+
+	<script id="shader-vs" type="x-shader/x-vertex">
+		attribute vec3 aVertexPosition;
+		attribute vec3 aVertexNormal;
+		attribute vec2 aTextureCoord;
+				
+		uniform mat4 uMVMatrix;
+		uniform mat4 uPMatrix;
+		uniform mat3 uNMatrix;
+		
+		varying vec2 vTextureCoord;
+		varying vec3 vNormalEye;
+		varying vec4 vPosition;
+		
+		void main() {
+			vNormalEye = normalize(uNMatrix * aVertexNormal);
+
+			vPosition = uMVMatrix * vec4(aVertexPosition,1.0);
+			gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition,1.0);
+			vTextureCoord = aTextureCoord;
+		}
+	</script>
+	
+	<script id="shader-fs" type="x-shader/x-fragment">
+		precision mediump float;
+
+		varying vec2 vTextureCoord;
+		varying vec3 vNormalEye;
+		varying vec4 vPosition;
+		
+		uniform sampler2D uSampler;
+
+		uniform vec3 uAmbientColor;
+		uniform vec3 uLightingDirection;
+		uniform vec3 uDiffuseColor;
+		uniform vec3 uSpecularColor;
+
+		const float shininess = 64.0;
+		
+		void main() {
+			float directionalLightWeighting = max(dot(vNormalEye,uLightingDirection),0.0);
+			
+			//vec3 direction = normalize(-vPosition.xyz + uLightingDirection);
+			vec3 direction = normalize(-vPosition.xyz + uLightingDirection);
+			vec3 reflection = reflect(-direction,vNormalEye);
+			
+			float rdotv = max(dot(reflection,direction),0.0);
+			float specularLightWeighting = pow(rdotv,shininess);
+			
+			vec3 vLightWeighting = uAmbientColor + uDiffuseColor * directionalLightWeighting + uSpecularColor * specularLightWeighting;
+
+			vec4 textureColor = texture2D(uSampler,vec2(vTextureCoord.s,vTextureCoord.t));
+			gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a);			
+		}
+	</script>
+</head>
+<body>
+	<header>
+		<h1>Applied Computer Graphics and Vision</h1>
+		<h2>Coursework Submission 1</h2>
+		<h3>Student Number: 482718</h3>
+	</header>
+
+	<canvas style="float:left"; id="canvas" width="500" height="500"></canvas>
+
+	<article>
+		<header>
+			<h1>Interactive Variables</h1>
+		</header>
+		<section>
+			<header>Cube</header>
+			<p>Orbit Radius: 
+				<span id="orbitValue"></span>
+				<span id="orbitError" class="error note"></span>
+				<span class="note">(PageUp to increase orbit, PageDown to decrease orbit)</span>
+			</p>
+			<p>Orbit Speed: 
+				<span id="orbitSpeed"></span>
+				<span class="note">(A to increase speed, Z to decrease speed)</span>
+			</p>
+		</section>
+		<section>
+			<header>Scene</header>
+			<p>Zoom:
+				<span id="zoomValue"></span>
+				<span id="zoomError" class="error note"></span>
+				<span class="note">(Up Arrow to zoom in, down arrow to zoom out)</span>
+			</p>
+			<p>X-Axis Position:
+				<span id="xPos"></span>
+				<span class="note">(Left arrow to move left, right arrow to move right)</span>
+			</p>
+		</section>
+
+	</article>
+
+</body>
+</html>
